@@ -33,7 +33,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         private final String status;
         private final URI site;
 
-        public UpdateStatusCommand(String status, URI site) {
+        public UpdateStatusCommand(URI site,String status) {
             this.status = status;
             this.site = site;
         }
