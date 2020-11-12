@@ -1,5 +1,6 @@
 package com.jmoncayo.DownDetector;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -33,7 +34,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         private final String status;
         private final URI site;
 
-        public UpdateStatusCommand(URI site,String status) {
+        public UpdateStatusCommand(URI site, String status) {
             this.status = status;
             this.site = site;
         }
@@ -61,13 +62,16 @@ public class PingController extends AbstractBehavior<PingController.Command> {
     public Receive<Command> createReceive() {
         return newReceiveBuilder()
                 .onMessage(StartCommand.class, msg -> {
+                    System.out.println("start received");
                     msg.getSites().forEach((uri, s) -> {
-                        System.out.println("create ping actors");
+                        ActorRef<PingBehavior.Command> pingActor = getContext().spawn(PingBehavior.create(), uri.toString().replace("/",""));
+                        pingActor.tell(new PingBehavior.PingCommand(uri, getContext().getSelf()));
+                        System.out.println("created ping actor: " + pingActor.path());
                     });
                     return this;
                 })
-                .onMessage(UpdateStatusCommand.class, msg ->{
-                    sites.put(msg.getSite(),msg.getStatus());
+                .onMessage(UpdateStatusCommand.class, msg -> {
+                    sites.put(msg.getSite(), msg.getStatus());
                     return this;
                 })
                 .build();
