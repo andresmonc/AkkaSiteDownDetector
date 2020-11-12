@@ -46,7 +46,8 @@ public class PingBehavior extends AbstractBehavior<PingBehavior.Command> {
         return newReceiveBuilder()
                 .onMessage(PingCommand.class, msg -> {
                     System.out.println("I'm pinging");
-                    msg.getSender().tell(new PingController.UpdateStatusCommand(new URI("http://www.google.com"), "UP"));
+                    SitePinger sitePinger = new SitePinger(msg.getUri());
+                    msg.getSender().tell(new PingController.UpdateStatusCommand(msg.getUri(), sitePinger.pingSite()));
                     return this;
                 })
                 .build();

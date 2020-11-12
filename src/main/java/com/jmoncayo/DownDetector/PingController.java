@@ -6,6 +6,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import scala.Int;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -18,28 +19,28 @@ public class PingController extends AbstractBehavior<PingController.Command> {
 
     public static class StartCommand implements Command {
         public static final long serialVersionUID = 1L;
-        private final Map<URI, String> sites;
+        private final Map<URI, Integer> sites;
 
-        public StartCommand(Map<URI, String> sites) {
+        public StartCommand(Map<URI, Integer> sites) {
             this.sites = sites;
         }
 
-        public Map<URI, String> getSites() {
+        public Map<URI, Integer> getSites() {
             return sites;
         }
     }
 
     public static class UpdateStatusCommand implements Command {
         public static final long serialVersionUID = 1L;
-        private final String status;
+        private final int status;
         private final URI site;
 
-        public UpdateStatusCommand(URI site, String status) {
+        public UpdateStatusCommand(URI site, int status) {
             this.status = status;
             this.site = site;
         }
 
-        public String getStatus() {
+        public int getStatus() {
             return status;
         }
 
@@ -56,7 +57,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         return Behaviors.setup(PingController::new);
     }
 
-    private final Map<URI, String> sites = new HashMap<>();
+    private final Map<URI, Integer> sites = new HashMap<>();
 
     @Override
     public Receive<Command> createReceive() {
@@ -72,6 +73,9 @@ public class PingController extends AbstractBehavior<PingController.Command> {
                 })
                 .onMessage(UpdateStatusCommand.class, msg -> {
                     sites.put(msg.getSite(), msg.getStatus());
+                    sites.forEach((uri, integer) -> {
+                        System.out.println(uri +":" + integer);
+                    });
                     return this;
                 })
                 .build();
