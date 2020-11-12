@@ -8,13 +8,14 @@ import akka.actor.typed.javadsl.Receive;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PingController extends AbstractBehavior<PingController.Command> {
     public interface Command extends Serializable {
     }
 
-    public class StartCommand implements Command {
+    public static class StartCommand implements Command {
         public static final long serialVersionUID = 1L;
         private final Map<URI, String> sites;
 
@@ -27,7 +28,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         }
     }
 
-    public class UpdateStatusCommand implements Command {
+    public static class UpdateStatusCommand implements Command {
         public static final long serialVersionUID = 1L;
         private final String status;
         private final URI site;
@@ -54,6 +55,8 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         return Behaviors.setup(PingController::new);
     }
 
+    private final Map<URI, String> sites = new HashMap<>();
+
     @Override
     public Receive<Command> createReceive() {
         return newReceiveBuilder()
@@ -61,6 +64,10 @@ public class PingController extends AbstractBehavior<PingController.Command> {
                     msg.getSites().forEach((uri, s) -> {
                         System.out.println("create ping actors");
                     });
+                    return this;
+                })
+                .onMessage(UpdateStatusCommand.class, msg ->{
+                    sites.put(msg.getSite(),msg.getStatus());
                     return this;
                 })
                 .build();
