@@ -10,6 +10,7 @@ import scala.Int;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +50,9 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         }
     }
 
+    private class GetStatusesCommand implements Command {
+    }
+
     private PingController(ActorContext<Command> context) {
         super(context);
     }
@@ -57,15 +61,24 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         return Behaviors.setup(PingController::new);
     }
 
-    private final Map<URI, Integer> sites = new HashMap<>();
+    private Map<URI, Integer> sites;
+    private Object TIMER_KEY;
 
     @Override
     public Receive<Command> createReceive() {
         return newReceiveBuilder()
                 .onMessage(StartCommand.class, msg -> {
                     System.out.println("start received");
-                    msg.getSites().forEach((uri, s) -> {
-                        ActorRef<PingBehavior.Command> pingActor = getContext().spawn(PingBehavior.create(), uri.toString().replace("/",""));
+                    sites = msg.getSites();
+                    return Behaviors.withTimers(timer -> {
+                        timer.startTimerAtFixedRate(TIMER_KEY, new GetStatusesCommand(), Duration.ofSeconds(20));
+                        return this;
+                    });
+                })
+                .onMessage(GetStatusesCommand.class, msg -> {
+                    System.out.println("Getting statuses...");
+                    sites.forEach((uri, s) -> {
+                        ActorRef<PingBehavior.Command> pingActor = getContext().spawn(PingBehavior.create(), uri.toString().replace("/", ""));
                         pingActor.tell(new PingBehavior.PingCommand(uri, getContext().getSelf()));
                         System.out.println("created ping actor: " + pingActor.path());
                     });
@@ -74,7 +87,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
                 .onMessage(UpdateStatusCommand.class, msg -> {
                     sites.put(msg.getSite(), msg.getStatus());
                     sites.forEach((uri, integer) -> {
-                        System.out.println(uri +":" + integer);
+                        System.out.println(uri + ":" + integer);
                     });
                     return this;
                 })
