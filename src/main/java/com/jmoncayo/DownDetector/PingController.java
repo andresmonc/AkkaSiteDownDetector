@@ -71,7 +71,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
                     System.out.println("start received");
                     sites = msg.getSites();
                     return Behaviors.withTimers(timer -> {
-                        timer.startTimerAtFixedRate(TIMER_KEY, new GetStatusesCommand(), Duration.ofSeconds(20));
+                        timer.startTimerAtFixedRate(TIMER_KEY, new GetStatusesCommand(), Duration.ofSeconds(5));
                         return this;
                     });
                 })

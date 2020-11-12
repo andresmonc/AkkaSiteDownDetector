@@ -48,7 +48,8 @@ public class PingBehavior extends AbstractBehavior<PingBehavior.Command> {
                     System.out.println("I'm pinging");
                     SitePinger sitePinger = new SitePinger(msg.getUri());
                     msg.getSender().tell(new PingController.UpdateStatusCommand(msg.getUri(), sitePinger.pingSite()));
-                    return this;
+                    return Behaviors.stopped();
+//
                 })
                 .build();
     }
