@@ -6,12 +6,10 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import scala.Int;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 public class PingController extends AbstractBehavior<PingController.Command> {
@@ -50,7 +48,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
         }
     }
 
-    private class GetStatusesCommand implements Command {
+    private static class GetStatusesCommand implements Command {
     }
 
     private PingController(ActorContext<Command> context) {
@@ -86,9 +84,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
                 })
                 .onMessage(UpdateStatusCommand.class, msg -> {
                     sites.put(msg.getSite(), msg.getStatus());
-                    sites.forEach((uri, integer) -> {
-                        System.out.println(uri + ":" + integer);
-                    });
+                    sites.forEach((uri, integer) -> System.out.println(uri + ":" + integer));
                     return this;
                 })
                 .build();

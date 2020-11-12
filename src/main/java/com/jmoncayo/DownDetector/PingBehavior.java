@@ -16,8 +16,8 @@ public class PingBehavior extends AbstractBehavior<PingBehavior.Command> {
     }
 
     public static class PingCommand implements Command {
-        private URI uri;
-        private ActorRef<PingController.Command> sender;
+        private final URI uri;
+        private final ActorRef<PingController.Command> sender;
 
         public PingCommand(URI uri, ActorRef<PingController.Command> sender) {
             this.uri = uri;
@@ -49,7 +49,6 @@ public class PingBehavior extends AbstractBehavior<PingBehavior.Command> {
                     SitePinger sitePinger = new SitePinger(msg.getUri());
                     msg.getSender().tell(new PingController.UpdateStatusCommand(msg.getUri(), sitePinger.pingSite()));
                     return Behaviors.stopped();
-//
                 })
                 .build();
     }
