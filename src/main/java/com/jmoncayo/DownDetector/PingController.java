@@ -16,7 +16,7 @@ public class PingController extends AbstractBehavior<PingController.Command> {
 
     public class StartCommand implements Command {
         public static final long serialVersionUID = 1L;
-        private Map<URI, String> sites;
+        private final Map<URI, String> sites;
 
         public StartCommand(Map<URI, String> sites) {
             this.sites = sites;
@@ -29,8 +29,8 @@ public class PingController extends AbstractBehavior<PingController.Command> {
 
     public class UpdateStatusCommand implements Command {
         public static final long serialVersionUID = 1L;
-        private String status;
-        private URI site;
+        private final String status;
+        private final URI site;
 
         public UpdateStatusCommand(String status, URI site) {
             this.status = status;
